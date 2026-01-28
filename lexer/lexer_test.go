@@ -6,7 +6,7 @@ import (
 )
 
 func TestNextToken(t *testing.T) {
-	input := "a*bc|d."
+	input := "a*bc|d.{}"
 
 	tests := []struct {
 		expectedType    token.TokenType
@@ -19,6 +19,8 @@ func TestNextToken(t *testing.T) {
 		{token.OR, "|"},
 		{token.CHAR, "d"},
 		{token.CHAR, "."},
+		{token.LBRACKET, "{"},
+		{token.RBRACKET, "}"},
 	}
 
 	l := New(input)

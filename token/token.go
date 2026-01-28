@@ -12,6 +12,9 @@ const (
 	INT  = "INT"
 	CHAR = "CHAR"
 
+	LBRACKET = "{"
+	RBRACKET = "}"
+
 	STAR = "*"
 	OR   = "|"
 )
