@@ -111,6 +111,23 @@ func TestCombination(t *testing.T) {
 
 }
 
+func TestStar(t *testing.T) {
+	f1 := SingleChar("a")
+	star := Star(f1)
+
+	if len(star.End) != 1 {
+		t.Fatalf("Fail: Star Fragment should have only a single end state. got=%d", len(star.End))
+	}
+	// Star start should have e-outs to f1.start & star.end
+	if !slices.Contains(star.Start.eOuts, f1.Start) {
+		t.Fatalf("Fail: Star Fragment start should have eOut to inner fragment start")
+	}
+
+	if !slices.Contains(star.Start.eOuts, star.End[0]) {
+		t.Fatalf("Fail: Star Fragment start should have eOut to inner fragment start")
+	}
+}
+
 func TestEpsEnv(t *testing.T) {
 	nfa := FromNotation("/test/eEpsEnv.txt")
 	s1 := nfa[1]

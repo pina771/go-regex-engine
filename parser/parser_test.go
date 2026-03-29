@@ -149,3 +149,16 @@ func TestNfaConstruction(t *testing.T) {
 	nfa := parser.ToNFA()
 	t.Log(nfa)
 }
+
+func TestStar(t *testing.T) {
+	input := "ab*"
+
+	parser := New(lexer.New(input))
+	parsedExpr := parser.parseExpression(0)
+	if parsedExpr.TokenLiteral() != "(a(b*))" {
+		t.Fatalf("Expression TokenLiteral wrong. Expected: %s, got=%s",
+			"(a(b*))",
+			parsedExpr.TokenLiteral(),
+		)
+	}
+}

@@ -81,6 +81,25 @@ func Alternate(f1 *Fragment, f2 *Fragment) *Fragment {
 	}
 }
 
+func Star(frag *Fragment) *Fragment {
+	newEnd := newState()
+	newStart := State{
+		outs: map[string]*State{},
+		eOuts: []*State{
+			frag.Start,
+			newEnd,
+		},
+	}
+	for _, endState := range frag.End {
+		endState.eOuts = append(endState.eOuts, frag.Start, newEnd)
+	}
+
+	return &Fragment{
+		Start: &newStart,
+		End:   []*State{newEnd},
+	}
+}
+
 type NfaState map[*State]bool
 
 // Determines the next NFA State based on current state and an input.

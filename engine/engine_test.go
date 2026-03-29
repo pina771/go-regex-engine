@@ -15,6 +15,7 @@ func TestMatch(t *testing.T) {
 		{"axb", "a.b"},
 		{"bLt", "b.t|a"},
 		{"tera", "...."},
+		{"xtaaab", "xta*b"},
 	}
 	for _, input := range inputs {
 		if matches := Match(input.text, input.regex); !matches {

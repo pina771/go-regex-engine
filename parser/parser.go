@@ -13,9 +13,12 @@ type Parser struct {
 }
 
 var precedences = map[token.TokenType]int{
-	"LOWEST":   0,
-	token.OR:   1,
-	token.CHAR: 3, // A character has higher precedence than '|' in regular expressions
+	"LOWEST":       0,
+	token.OR:       1,
+	token.CHAR:     3, // A character has higher precedence than '|' in regular expressions
+	token.LBRACKET: 4,
+
+	token.STAR: 10,
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -45,6 +48,10 @@ func (p *Parser) parseExpression(precedence int) Expression {
 		case token.OR:
 			p.nextToken()
 			left = p.parseAlternation(left)
+
+		case token.STAR:
+			p.nextToken()
+			left = p.parseStarExpression(left)
 		}
 	}
 
@@ -68,6 +75,11 @@ func (p *Parser) parseAlternation(lhs Expression) Expression {
 	p.nextToken()
 	rhs := p.parseExpression(precedences[token.OR])
 	return &AlternationExpression{lhs, rhs, alterToken}
+}
+
+func (p *Parser) parseStarExpression(lhs Expression) Expression {
+	starToken := p.curToken
+	return &StarExpression{lhs, starToken}
 }
 
 func (p *Parser) peekPrecedence() int {
@@ -124,4 +136,18 @@ func (ae *AlternationExpression) toNfa() *nfa.Fragment {
 }
 func (ae *AlternationExpression) TokenLiteral() string {
 	return "(" + ae.lhs.TokenLiteral() + ae.token.Literal + ae.rhs.TokenLiteral() + ")"
+}
+
+type StarExpression struct {
+	lhs   Expression
+	token token.Token
+}
+
+func (se *StarExpression) toNfa() *nfa.Fragment {
+	left := se.lhs.toNfa()
+	return nfa.Star(left)
+}
+
+func (se *StarExpression) TokenLiteral() string {
+	return "(" + se.lhs.TokenLiteral() + se.token.Literal + ")"
 }
