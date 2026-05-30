@@ -16,5 +16,6 @@ const (
 	RBRACKET = "}"
 
 	STAR = "*"
+	PLUS = "+"
 	OR   = "|"
 )

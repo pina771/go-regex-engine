@@ -6,10 +6,18 @@ import (
 	"pina771/regex-eng/token"
 )
 
+type (
+	prefixFn func() Expression
+	infixFn  func(Expression) Expression
+)
+
 type Parser struct {
 	l         *lexer.Lexer
 	curToken  token.Token
 	peekToken token.Token
+
+	prefixFns map[token.TokenType]prefixFn
+	infixFns  map[token.TokenType]infixFn
 }
 
 var precedences = map[token.TokenType]int{
@@ -23,6 +31,14 @@ var precedences = map[token.TokenType]int{
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{l: l}
+	p.prefixFns = map[token.TokenType]prefixFn{}
+	p.prefixFns[token.CHAR] = p.parseChar
+
+	p.infixFns = map[token.TokenType]infixFn{}
+	p.infixFns[token.CHAR] = p.parseConcatenation
+	p.infixFns[token.OR] = p.parseAlternation
+	p.infixFns[token.STAR] = p.parseStarExpression
+
 	p.nextToken()
 	p.nextToken()
 	return p
@@ -35,27 +51,24 @@ func (p *Parser) nextToken() {
 
 func (p *Parser) parseExpression(precedence int) Expression {
 	var left Expression
-	switch p.curToken.Type {
-	case token.CHAR:
-		left = p.parseChar()
-	}
+	left = p.parsePrefix()
 
 	for precedence < p.peekPrecedence() {
-		switch p.peekToken.Type {
-		case token.CHAR:
-			p.nextToken()
-			left = p.parseConcatenation(left)
-		case token.OR:
-			p.nextToken()
-			left = p.parseAlternation(left)
-
-		case token.STAR:
-			p.nextToken()
-			left = p.parseStarExpression(left)
-		}
+		p.nextToken()
+		left = p.parseInfix(left)
 	}
 
 	return left
+}
+
+func (p *Parser) parsePrefix() Expression {
+	curToken := p.curToken
+	return p.prefixFns[curToken.Type]()
+}
+
+func (p *Parser) parseInfix(ex Expression) Expression {
+	curToken := p.curToken
+	return p.infixFns[curToken.Type](ex)
 }
 
 func (p *Parser) parseChar() Expression {

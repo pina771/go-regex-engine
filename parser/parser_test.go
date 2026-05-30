@@ -82,6 +82,7 @@ func TestConcatenation(t *testing.T) {
 	for i, input := range inputs {
 		parser := New(lexer.New(input))
 		parsedExpression := parser.parseExpression(0)
+		t.Logf("%s -> %s", inputs[i], parsedExpression.TokenLiteral())
 		if parsedExpression.TokenLiteral() != expectedExpressions[i].TokenLiteral() {
 			t.Fatalf(
 				"test[%d] failed. Expression TokenLiterla wrong: expected=%q, got=%q",
@@ -151,14 +152,17 @@ func TestNfaConstruction(t *testing.T) {
 }
 
 func TestStar(t *testing.T) {
-	input := "ab*"
+	inputs := []string{"ab*", "abc*"}
+	expectedLiterals := []string{"(a(b*))", "((ab)(c*))"}
 
-	parser := New(lexer.New(input))
-	parsedExpr := parser.parseExpression(0)
-	if parsedExpr.TokenLiteral() != "(a(b*))" {
-		t.Fatalf("Expression TokenLiteral wrong. Expected: %s, got=%s",
-			"(a(b*))",
-			parsedExpr.TokenLiteral(),
-		)
+	for idx := range inputs {
+		parser := New(lexer.New(inputs[idx]))
+		parsedExpr := parser.parseExpression(0)
+		if parsedExpr.TokenLiteral() != expectedLiterals[idx] {
+			t.Fatalf("Expression TokenLiteral wrong. Expected: %s, got=%s",
+				expectedLiterals[idx],
+				parsedExpr.TokenLiteral(),
+			)
+		}
 	}
 }
