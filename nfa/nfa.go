@@ -91,7 +91,27 @@ func Star(frag *Fragment) *Fragment {
 		},
 	}
 	for _, endState := range frag.End {
-		endState.eOuts = append(endState.eOuts, frag.Start, newEnd)
+		endState.eOuts = append(endState.eOuts, &newStart, newEnd)
+	}
+
+	return &Fragment{
+		Start: &newStart,
+		End:   []*State{newEnd},
+	}
+}
+
+func Plus(frag *Fragment) *Fragment {
+	newEnd := newState()
+	// Difference between Plus and Star is in the starting point. In Plus, the new start does not
+	// have a e-transition to the end state, effectively forcing entry into the inner fragment.
+	newStart := State{
+		outs: map[string]*State{},
+		eOuts: []*State{
+			frag.Start,
+		},
+	}
+	for _, endState := range frag.End {
+		endState.eOuts = append(endState.eOuts, &newStart, newEnd)
 	}
 
 	return &Fragment{

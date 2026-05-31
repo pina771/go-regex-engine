@@ -179,7 +179,7 @@ type PlusExpression struct {
 
 func (pe *PlusExpression) toNfa() *nfa.Fragment {
 	left := pe.lhs.toNfa()
-	return nfa.Star(left)
+	return nfa.Plus(left)
 }
 
 func (pe *PlusExpression) TokenLiteral() string {

@@ -128,6 +128,28 @@ func TestStar(t *testing.T) {
 	}
 }
 
+func TestPlus(t *testing.T) {
+	f1 := SingleChar("a")
+	plus := Plus(f1)
+
+	if len(plus.End) != 1 {
+		t.Fatalf("Fail: Plus fragment should have only a single end state. got=%d", len(plus.End))
+	}
+
+	// Plus start should have only a single e-out to f1.start
+	if !slices.Contains(plus.Start.eOuts, f1.Start) {
+		t.Fatalf("Fail: Plus Fragment start should have eOut to inner fragment start")
+	}
+
+	// Inner fragment end state should have e-out to plus start and plus end
+	if !slices.Contains(f1.End[0].eOuts, plus.Start) {
+		t.Fatalf("Fail: Inner fragment must have e-out to plus.Start")
+	}
+	if !slices.Contains(f1.End[0].eOuts, plus.End[0]) {
+		t.Fatalf("Fail: Inner fragment must have e-out to plus.End")
+	}
+}
+
 func TestEpsEnv(t *testing.T) {
 	nfa := FromNotation("/test/eEpsEnv.txt")
 	s1 := nfa[1]
