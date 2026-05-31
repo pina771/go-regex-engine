@@ -71,11 +71,11 @@ func TestConcatenation(t *testing.T) {
 			rhs: &CharExpression{char: "b"},
 		},
 		{
-			lhs: &ConcatExpression{
-				lhs: &CharExpression{char: "a"},
-				rhs: &CharExpression{char: "b"},
+			lhs: &CharExpression{char: "a"},
+			rhs: &ConcatExpression{
+				lhs: &CharExpression{char: "b"},
+				rhs: &CharExpression{char: "c"},
 			},
-			rhs: &CharExpression{char: "c"},
 		},
 	}
 
@@ -85,7 +85,7 @@ func TestConcatenation(t *testing.T) {
 		t.Logf("%s -> %s", inputs[i], parsedExpression.TokenLiteral())
 		if parsedExpression.TokenLiteral() != expectedExpressions[i].TokenLiteral() {
 			t.Fatalf(
-				"test[%d] failed. Expression TokenLiterla wrong: expected=%q, got=%q",
+				"test[%d] failed. Expression TokenLiteral wrong: expected=%s, got=%s",
 				i,
 				expectedExpressions[i].TokenLiteral(),
 				parsedExpression.TokenLiteral(),
@@ -119,9 +119,9 @@ func TestMixedInfix(t *testing.T) {
 	expectedLiterals := []string{
 		"((ab)|c)",
 		"((ab)|(cd))",
-		"(a|((bc)d))",
-		"(((ab)c)|d)",
-		"((((ac)d)|b)|(cd))",
+		"(a|(b(cd)))",
+		"((a(bc))|d)",
+		"(((a(cd))|b)|(cd))",
 	}
 	for i, inp := range inputs {
 		parser := New(lexer.New(inp))
@@ -134,8 +134,9 @@ func TestMixedInfix(t *testing.T) {
 		)
 
 		if parsedExpr.TokenLiteral() != expectedLiterals[i] {
-			t.Fatalf("fail[%d]. Expression TokenLiteral wrong. Expected: %s, got=%q",
+			t.Fatalf("fail[%d].Input: %s\tExpected TokenLiteral: %s\tActualOutput: %s",
 				i,
+				inp,
 				expectedLiterals[i],
 				parsedExpr.TokenLiteral(),
 			)
@@ -152,8 +153,16 @@ func TestNfaConstruction(t *testing.T) {
 }
 
 func TestStar(t *testing.T) {
-	inputs := []string{"ab*", "abc*"}
-	expectedLiterals := []string{"(a(b*))", "((ab)(c*))"}
+	inputs := []string{
+		"ab*",
+		"abc*",
+		"a*PT",
+	}
+	expectedLiterals := []string{
+		"(a(b*))",
+		"(a(b(c*)))",
+		"((a*)(PT))",
+	}
 
 	for idx := range inputs {
 		parser := New(lexer.New(inputs[idx]))

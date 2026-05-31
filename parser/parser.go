@@ -79,7 +79,7 @@ func (p *Parser) parseChar() Expression {
 }
 
 func (p *Parser) parseConcatenation(lhs Expression) Expression {
-	rhs := p.parseExpression(precedences[token.CHAR])
+	rhs := p.parseExpression(precedences[token.CHAR] - 1)
 	return &ConcatExpression{lhs, rhs}
 }
 
