@@ -27,6 +27,7 @@ var precedences = map[token.TokenType]int{
 	token.LBRACKET: 4,
 
 	token.STAR: 10,
+	token.PLUS: 10,
 }
 
 func New(l *lexer.Lexer) *Parser {
@@ -38,6 +39,7 @@ func New(l *lexer.Lexer) *Parser {
 	p.infixFns[token.CHAR] = p.parseConcatenation
 	p.infixFns[token.OR] = p.parseAlternation
 	p.infixFns[token.STAR] = p.parseStarExpression
+	p.infixFns[token.PLUS] = p.parsePlusExpression
 
 	p.nextToken()
 	p.nextToken()
@@ -93,6 +95,11 @@ func (p *Parser) parseAlternation(lhs Expression) Expression {
 func (p *Parser) parseStarExpression(lhs Expression) Expression {
 	starToken := p.curToken
 	return &StarExpression{lhs, starToken}
+}
+
+func (p *Parser) parsePlusExpression(lhs Expression) Expression {
+	plusToken := p.curToken
+	return &PlusExpression{lhs, plusToken}
 }
 
 func (p *Parser) peekPrecedence() int {
@@ -163,4 +170,18 @@ func (se *StarExpression) toNfa() *nfa.Fragment {
 
 func (se *StarExpression) TokenLiteral() string {
 	return "(" + se.lhs.TokenLiteral() + se.token.Literal + ")"
+}
+
+type PlusExpression struct {
+	lhs   Expression
+	token token.Token
+}
+
+func (pe *PlusExpression) toNfa() *nfa.Fragment {
+	left := pe.lhs.toNfa()
+	return nfa.Star(left)
+}
+
+func (pe *PlusExpression) TokenLiteral() string {
+	return "(" + pe.lhs.TokenLiteral() + pe.token.Literal + ")"
 }

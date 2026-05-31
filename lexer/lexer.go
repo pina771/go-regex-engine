@@ -22,6 +22,9 @@ func (l *Lexer) NextToken() token.Token {
 	case '*':
 		tok.Literal = string(l.ch)
 		tok.Type = token.STAR
+	case '+':
+		tok.Literal = string(l.ch)
+		tok.Type = token.PLUS
 
 	case '|':
 		tok.Literal = string(l.ch)

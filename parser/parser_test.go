@@ -175,3 +175,28 @@ func TestStar(t *testing.T) {
 		}
 	}
 }
+
+func TestPlus(t *testing.T) {
+	inputs := []string{
+		"ab+",
+		"ab+c",
+		"ab+c+",
+	}
+	expectedOutputs := []string{
+		"(a(b+))",
+		"(a((b+)c))",
+		"(a((b+)(c+)))",
+	}
+	for idx := range inputs {
+		parser := New(lexer.New(inputs[idx]))
+		parsedExpr := parser.parseExpression(0)
+		if parsedExpr.TokenLiteral() != expectedOutputs[idx] {
+			t.Fatalf("fail[%d].Input: %s\tExpected TokenLiteral: %s\tActualOutput: %s",
+				idx,
+				inputs[idx],
+				expectedOutputs[idx],
+				parsedExpr.TokenLiteral(),
+			)
+		}
+	}
+}
